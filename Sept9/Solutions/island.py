@@ -1,46 +1,42 @@
 from pprint import pprint
 
-def processLand(grid,r,c,x,y,land=False):
+dirs = [(0,1),(1,0),(0,-1),(-1,0)]
 
-    if(x<0 or y<0 or x>=r or y>=c):
-        return 0
-    elif(grid[y][x]=="L" or grid[y][x]=="C"):
-        if(x<0 or y<0 or x>=r or y>=c):
-            return 0
-        if(grid[y][x]=="L"):
-            land=True
-        grid[y][x]="."
-        land = processLand(grid,r,c,x+1,y,land) or processLand(grid,r,c,x-1,y,land) or processLand(grid,r,c,x,y+1,land) or processLand(grid,r,c,x,y-1,land) or land
-        return land
-    else:
-        return 0
+def valid(r,c):
+	global R,C,marked
+	return (0 <= r < R and 0 <= c < C) and not marked[r][c]
 
-def processWater(grid,r,c,x,y):
-    if(x<0 or y<0 or x>=r or y>=c):
-        return 0
-    elif(grid[y][x]=="W"):
-        grid[y][x]="w"
-        processWater(grid,r,c,x+1,y)
-        processWater(grid,r,c,x-1,y)
-        processWater(grid,r,c,x,y+1)
-        processWater(grid,r,c,x,y-1)
-    return 0
+def magic(r,c):
+	global grid,marked
+	if not valid(r,c):
+		return
+	marked[r][c] = True
+	if grid[r][c] == 'W':
+		return
+	grid[r][c] = 'L'
+	for d in dirs:
+		new_r,new_c = r+d[0],c+d[1]
+		magic(new_r,new_c)
 
-def process(grid,r,c,x,y):
-    if(grid[y][x]=='W'):
-        return processWater(grid,r,c,x,y)
-    else:
-        return processLand(grid,r,c,x,y)
+R,C = map(int,input().split())
 
-c,r = [int(i) for i in input().split()]
 grid = []
-for i in range(c):
-    grid.append(list(input()))
+marked = []
 
-total = 0
+for r in range(R):
+	grid.append(list(input()))
+	marked.append([False for c in range(C)])
 
-for y in range(c):
-    for x in range(r):
-        total+=process(grid,r,c,x,y)
+count = 0
 
-print(total)
+for r in range(R):
+	for c in range(C):
+		if not marked[r][c] and grid[r][c] == 'L':
+			count += 1
+			magic(r,c)
+
+print(count)
+'''
+pprint(grid)
+pprint(marked)
+'''
